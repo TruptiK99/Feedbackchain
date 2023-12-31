@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>PayApp 12.07</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.2.7-rc.0/web3.min.js"></script>
+    <style>
+        body {
+            background-color: #4d2a57; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #c8dedf; 
+        }
+        .btn-custom {
+            background-color: #8D6E63; /* A shade of brown */
+            color: white;
+        }
+        .btn-custom:hover {
+            background-color: #5D4037; /* Darker shade of brown */
+        }
+        .container {
+            padding-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1 class="text-left text-light">FeedbackChain</h1>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6" id="readArea"> <!-- READING FROM CONTRACT -->
+                <button class="btn btn-custom btn-block" onclick="connectMetamask()">LOGIN</button>
+                <p id="userArea">Status: Not able to LOGIN</p>
+                <!-- Other buttons and paragraphs -->
+            </div>
+            
+                <!-- Other buttons and inputs -->
+            </div>
+                <!-- READING FROM CONTRACT -->
+            <div class="col-md-6" id="readArea"> 
+                    
+                    <button class="btn btn-custom btn-block" onclick="connectContract()">SIGN UP TO GIVE YOUR FEEDBACK</button>
+                    <p id="contractArea">Status: Not connected to Contract</p>
+        
+                    <button class="btn btn-custom btn-block" onclick="getContractAccount()">GET CONTRACT ACCOUNT</button>
+                    <p id="contractAccount">Contract Account: Not Connected to Contract</p>
+        
+                    <button class="btn btn-custom btn-block" onclick="getBalanceApple()">CHECK TOKEN BALANCE</button>
+                    <p id="balanceArea">Balance: Not Connected to Contract</p>
+            </div>
+        
+            <!-- WRITING TO CONTRACT -->
+            <div class="col-md-6" id="writeArea">
+                <button class="btn btn-custom btn-block" onclick="storedText()">GIVE FEEDBACK</button>
+                <input type="text" id="FeedbackInput" class="form-control" placeholder="Write your Feedback here"><br><br>
+                <!-- <input type="number" id="depositInput" class="form-control" placeholder="Write your Feedback here"><br><br>
+                    -->
+                <button class="btn btn-custom btn-block" onclick="withdraw()">SEND TOKENS</button><br>
+                <input type="text" id="addressInput" class="form-control" placeholder="Enter Address"><br>
+                <input type="number" id="amountInput" class="form-control" placeholder="Enter Amount">
+            </div>
+        </div>
+
+
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p class="text-muted text-center">© 2023 FeedbackChain. All rights reserved.</p>
+        </div>
+    </footer>
+    
+
+    <!-- Your existing script remains the same -->
+    <script>
+        
+        let account;
+        const connectMetamask = async () => {
+            if(window.ethereum !== "undefined") {
+                const accounts = await ethereum.request({method: "eth_requestAccounts"});
+                account = accounts[0];
+                document.getElementById("userArea").innerHTML = `User Account: ${account}`;
+            }
+        }
+
+        const connectContract = async () => {
+            const ABI = [
+           
+                {
+                    "inputs": [],
+                    "name": "deposit",
+                    "outputs": [],
+                    "stateMutability": "payable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "getAddress",
+                    "outputs": [
+                        {
+                            "internalType": "address",
+                            "name": "",
+                            "type": "address"
+                        }
+                    ],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "getBalance",
+                    "outputs": [
+                        {
+                            "internalType": "uint256",
+                            "name": "",
+                            "type": "uint256"
+                        }
+                    ],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "getText",
+                    "outputs": [
+                        {
+                            "internalType": "uint256",
+                            "name": "_text",
+                            "type": "uint256"
+                        }
+                    ],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        {
+                            "internalType": "uint256",
+                            "name": "_text",
+                            "type": "uint256"
+                        }
+                    ],
+                    "name": "setText",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        {
+                            "internalType": "address payable",
+                            "name": "_to",
+                            "type": "address"
+                        },
+                        {
+                            "internalType": "uint256",
+                            "name": "_amount",
+                            "type": "uint256"
+                        }
+                    ],
+                    "name": "withdraw",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                }
+            ]
+        
+          
+            ;
+            const Address = "0xD20dC557315f5c76441f00e7e3D128e9ce6e3e1a"; // Taking Address from Remix 
+            window.web3 = await new Web3(window.ethereum);
+            window.contract = await new window.web3.eth.Contract(ABI, Address);
+            document.getElementById("contractArea").innerHTML = "Connected to Contract"; // calling the elementID above
+        }
+
+        const getContractAccount = async () => {
+            const data = await window.contract.methods.getAddress().call();
+            document.getElementById("contractAccount").innerHTML = `Contract Account: ${data}`;
+        }
+
+        const getBalanceApple = async () => { // const getBalanceApple is the HTML function & .contract.getBalance is the smart contract function
+            const data = await window.contract.methods.getBalance().call();
+            document.getElementById("balanceArea").innerHTML = `Contract Balance: ${data}`;
+        }
+
+///const depositContract = async () => {
+            ///const amount = document.getElementById("depositInput").value;
+   ///         const amount = 0.1
+      ///      await window.contract.methods.deposit().send({from: account, value: amount});
+        ///}
+
+        const storedText = async () => {
+            const _text = document.getElementById("FeedbackInput").value;
+            ///const address = document.getElementById("addressInput").value;
+                        ///const amount = 0.1
+            await window.contract.methods.deposit().send({from: account, value: 0.1});
+            await window.contract.methods.setText(_text);
+        }
+
+        const withdraw = async () => {
+            const amount = document.getElementById("amountInput").value;
+            const address = document.getElementById("addressInput").value;
+            await window.contract.methods.withdraw(address, amount).send({from: account});
+        }
+
+        
+    </script>
+</body>
+</html>
